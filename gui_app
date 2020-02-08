@@ -1,0 +1,156 @@
+import wx
+
+
+class Example(wx.Frame):
+
+    def __init__(self, *args, **kwargs):
+        super(Example, self).__init__(*args, **kwargs)
+
+        self.InitUI()
+
+    def InitUI(self):
+
+        menubar = wx.MenuBar()
+
+        fileMenu = wx.Menu()
+
+        qmi = wx.MenuItem(fileMenu, wx.ID_EXIT, '&Quit\tCtrl+W')
+        fileMenu.Append(qmi)
+
+        self.Bind(wx.EVT_MENU, self.OnQuit, qmi)
+        
+        helpMenu = wx.Menu()
+        
+        hlp = wx.MenuItem(helpMenu, wx.ID_HELP, "&Help")
+        helpMenu.Append(hlp)
+        
+        self.Bind(wx.EVT_MENU, self.OnHelp, hlp)
+        
+        about = wx.MenuItem(helpMenu, wx.ID_ABOUT, "&About")
+        helpMenu.Append(about)
+        
+        self.Bind(wx.EVT_MENU, self.OnAbout, about)
+
+        menubar.Append(fileMenu, '&File')
+        menubar.Append(helpMenu, "&Help")
+        self.SetMenuBar(menubar)
+        
+        
+        ## Create the Rotine for the generator
+        
+        panel = wx.Panel(self)
+
+        vbox = wx.BoxSizer(wx.VERTICAL)
+
+        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        st1 = wx.StaticText(panel, label='Select Excel File')
+        hbox1.Add(st1, flag=wx.RIGHT, border=8)
+        vbox.Add(hbox1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        vbox.Add((-1, 10))
+        
+        self.browse1 = wx.FilePickerCtrl(panel) 
+        vbox.Add(self.browse1, 1, wx.ALL | wx.EXPAND, 5)
+        
+
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+        st2 = wx.StaticText(panel, label='Select Destination Folder')
+        hbox2.Add(st2, flag=wx.RIGHT, border=8)
+        vbox.Add(hbox2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        vbox.Add((-1, 10))
+        
+        self.browse2 = wx.DirPickerCtrl(panel)    
+        vbox.Add(self.browse2, 1, wx.ALL | wx.EXPAND, 5)
+        
+        hbox3 = wx.BoxSizer(wx.HORIZONTAL)
+        self.st3 = wx.StaticText(panel, label='Company Name')
+        hbox3.Add(self.st3, flag=wx.RIGHT, border=8)
+        
+        self.tc1 = wx.TextCtrl(panel)
+        hbox3.Add(self.tc1, proportion=1)
+        vbox.Add(hbox3, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        vbox.Add((-1, 10))
+        
+        hbox4 = wx.BoxSizer(wx.HORIZONTAL)
+        self.st4 = wx.StaticText(panel, label='Month of Report')
+        hbox4.Add(self.st4, flag=wx.RIGHT, border=8)
+        
+        self.tc2 = wx.TextCtrl(panel)
+        hbox4.Add(self.tc2, proportion=1)
+        vbox.Add(hbox4, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+
+        vbox.Add((-1, 10))        
+        
+        
+        ## Generate PPTX Button
+        my_btn = wx.Button(panel, label='Generate PPTX')
+        my_btn.Bind(wx.EVT_BUTTON, self.on_press)
+        vbox.Add(my_btn, 0, wx.ALL | wx.CENTER, 5)
+
+        
+        panel.SetSizer(vbox)        
+
+        self.SetSize((350, 350))
+        self.SetTitle('[m]Report PPTX Generator')
+        self.Centre()
+
+    def OnQuit(self, e):
+        self.Close()
+        
+    def OnAbout(self, e):
+        dial = wx.MessageDialog(None, """
+        Versão Beta.
+        
+        Desenvolvido pela equipa Business&Science.
+        
+        Quaisquer dúvidas ou problemas devem ser reportados por email para 
+        mrport.pt@groupm.com com um print screen do erro.
+        """, 'About',
+            wx.OK)
+
+        ret = dial.ShowModal()
+
+        if ret == wx.ID_YES:
+            e.Veto()
+            
+    def OnHelp(self, e):
+        dial = wx.MessageDialog(None, """
+        Como começar:
+        1. Escolher o o ficheiro Excel (extraído do [m]Report) para executar o ficheiro PPTX
+        2. Escolher a pasta de destino do PPTX
+        3. Correr programa em "Generate File"
+        """, 'Help',
+            wx.OK)
+
+        ret = dial.ShowModal()
+
+        if ret == wx.ID_YES:
+            e.Veto()
+            
+    def on_press(self, event):
+        path = self.browse1.GetPath()
+        company_name = self.tc1.GetLineText(0)
+        month = self.tc2.GetLineText(0)
+        destiny = self.browse2.GetPath()
+        
+        generate_pptx(path=path, company_name=company_name, month=month, destiny=destiny)
+        
+        dial = wx.MessageDialog(None, """
+        Processo terminado
+        """, 'The End',
+            wx.OK)
+        ret = dial.ShowModal()
+
+def main():
+
+    app = wx.App()
+    ex = Example(None)
+    ex.Fit()
+    ex.Show()
+    app.MainLoop()
+
+
+if __name__ == '__main__':
+    main()
